@@ -41,7 +41,7 @@ public class ArrowNotationExercise {
     }
 
     // TODO
-    // ageOfPersonWithTheLongestFullName: (Person -> String) -> (Person, Person) -> int
+    // ageOfPersonWithTheLongestFullName: (Person -> String) -> ((Person, Person) -> int)
     //
     private static BiFunction<Person,Person,Integer> ageOfPersonWithTheLongestFullName(Function<Person,String> getProperty){
        return (p1,p2)->getProperty.apply(p1).length()>getProperty.apply(p2).length()?p1.getAge():p2.getAge();

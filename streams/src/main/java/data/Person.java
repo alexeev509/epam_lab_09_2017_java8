@@ -1,12 +1,7 @@
 package data;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.function.BiFunction;
 
 public class Person implements Comparable<Person>, Serializable {
     private final String firstName;
@@ -17,7 +12,7 @@ public class Person implements Comparable<Person>, Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
-}
+    }
 
     public static Person create(String firstName, String lastName, int age) {
         return new Person(firstName, lastName, age);

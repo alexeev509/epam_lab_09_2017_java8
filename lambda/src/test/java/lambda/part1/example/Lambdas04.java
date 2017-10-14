@@ -23,20 +23,6 @@ public class Lambdas04 {
         });
     }
 
-    static class AnonymousLike implements Runnable {
-
-        private final Person person;
-
-        AnonymousLike(Person person) {
-            this.person = person;
-        }
-
-
-        @Override
-        public void run() {
-            person.print();
-        }
-    }
 
     @Test
     public void closure_lambda() {
@@ -53,18 +39,51 @@ public class Lambdas04 {
         runFromCurrentThread(person::print);
     }
 
-    private Person _person = null;
+    private Person _person;
 
-    public Person get_person() {
+    public Person getPerson() {
         return _person;
+    }
+
+    static void staticMethod() {
+        Runnable run = () -> {
+            System.out.println();
+        };
+    }
+
+    void nonStaticMethod() {
+        Runnable run = () -> {
+            System.out.println(this);
+        };
     }
 
     @Test
     public void closure_this_lambda() {
         _person = new Person("John", "Galt", 33);
 
+        runFromCurrentThread(new Runnable() {
+
+            private final Lambdas04 nestedReference = Lambdas04.this;
+
+            @Override
+            public void run() {
+                nestedReference._person.print();
+            }
+        });
         runFromCurrentThread(() -> this._person.print()); // GC Problems
-        runFromCurrentThread(/*this.*/_person::print);
+
+
+
+        runFromCurrentThread(new Runnable() {
+
+            private final Person nestedReference = Lambdas04.this._person;
+
+            @Override
+            public void run() {
+                nestedReference.print();
+            }
+        });
+        runFromCurrentThread(this._person::print);
 
         _person = new Person("a", "a", 1);
 
@@ -73,21 +92,21 @@ public class Lambdas04 {
     }
 
 
-    private Runnable runLater(Runnable r) {
+    private Runnable runLaterFromCurrentThread(Runnable runnable) {
         return () -> {
             System.out.println("before run");
-            r.run();
+            runnable.run();
         };
     }
-
 
     @Test
     public void closure_this_lambda2() {
         _person = new Person("John", "Galt", 33);
 
-        Runnable r1 = runLater(() -> _person.print());
-        Runnable r2 = runLater(_person::print);
-        Runnable r3 = runLater(get_person()::print);
+        Runnable r1 = runLaterFromCurrentThread(() -> this._person.print());
+        Runnable r2 = runLaterFromCurrentThread(this._person::print);
+        Runnable r3 = runLaterFromCurrentThread(this.getPerson()::print);
+
 
         _person = new Person("a", "a", 1);
 
