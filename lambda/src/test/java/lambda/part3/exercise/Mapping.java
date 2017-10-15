@@ -5,10 +5,8 @@ import data.JobHistoryEntry;
 import data.Person;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
@@ -219,23 +217,57 @@ public class Mapping {
     }
 
     // TODO * LazyFlatMapHelper
+    //It works but must have refactor
     private static class LazyFlatMapHelper <T,R>{
         private final List<T> list;
-        private final Function<T, R> function;
+        //private final List<Function<T, List<R>>> functionsList=new ArrayList<>();
+        private final Function<T, R>  function;
 
         private LazyFlatMapHelper(List<T> list, Function<T, R> function) {
             this.list = list;
-            this.function = function;
+            this.function=function;
+        }
+        public static <T> LazyFlatMapHelper<T, T> from(List<T> list) {
+            return new LazyFlatMapHelper(list, Function.identity());
         }
 
         public List<R> force() {
             //will realize
-            return null;
+            List<R> result=new ArrayList<>();
+            for(int i=0; i<list.size();i++){
+                result.add(function.apply(list.get(i)));
+            }
+            return result;
         }
 
-        public <R2> LazyMapHelper<T, R2> flatMap(Function<R, List<R2>> f) {
-            return null;
+        public <R2> LazyFlatMapHelper<T, R2> flatMap(Function<R, List<R2>> f) {
+            List<R> result=new ArrayList<>();
+            for(int i=0; i<list.size();i++){
+                result.addAll((Collection<? extends R>) f.apply((R) list.get(i)));
+            }
+            return new LazyFlatMapHelper(result, f);
         }
 
+    }
+
+
+    @Test
+    public void lazyFlatMapping(){
+        List<String> names=new ArrayList<>();
+        names.add("Bill Kosby,Jack Jones,John Grey");
+        names.add("Alisa Tower,Ben Gliss");
+        //Тиао парсим по запятым а потом парсим по пробелам
+        List<String> listOfNmaes=LazyFlatMapHelper.from(names)
+                .flatMap(e->stringSplit(e))
+                .flatMap(e->stringSplitSpace(e))
+                .force();
+
+        System.out.println(listOfNmaes.toString());
+    }
+    public List<String> stringSplit(String str){
+        return Arrays.asList(str.split(","));
+    }
+    public List<String> stringSplitSpace(String str){
+        return Arrays.asList(str.split(" "));
     }
 }
