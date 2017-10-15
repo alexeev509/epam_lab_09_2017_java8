@@ -41,8 +41,11 @@ public class Mapping {
 
         // ([T], T -> [R]) -> [R]
         public <R> MapHelper<R> flatMap(Function<T, List<R>> f) {
-            // TODO
-            throw new UnsupportedOperationException();
+            List<R> newList=new ArrayList<>();
+            for(int i=0; i<this.list.size();i++)
+                newList.addAll(f.apply(list.get(i)));
+           return new MapHelper(newList);
+            //throw new UnsupportedOperationException();
         }
     }
 
@@ -151,7 +154,7 @@ public class Mapping {
         }
     }
 
-    // TODO * LazyFlatMapHelper
+
 
     @Test
     public void lazyMapping() {
@@ -213,5 +216,26 @@ public class Mapping {
         );
 
         assertEquals(mappedEmployees, expectedResult);
+    }
+
+    // TODO * LazyFlatMapHelper
+    private static class LazyFlatMapHelper <T,R>{
+        private final List<T> list;
+        private final Function<T, R> function;
+
+        private LazyFlatMapHelper(List<T> list, Function<T, R> function) {
+            this.list = list;
+            this.function = function;
+        }
+
+        public List<R> force() {
+            //will realize
+            return null;
+        }
+
+        public <R2> LazyMapHelper<T, R2> flatMap(Function<R, List<R2>> f) {
+            return null;
+        }
+
     }
 }
