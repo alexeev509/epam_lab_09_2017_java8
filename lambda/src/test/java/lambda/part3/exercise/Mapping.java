@@ -218,6 +218,7 @@ public class Mapping {
 
     // TODO * LazyFlatMapHelper
     //It works but must have refactor
+    //We must save all functions in method flatMap but i use them there
     private static class LazyFlatMapHelper <T,R>{
         private final List<T> list;
         //private final List<Function<T, List<R>>> functionsList=new ArrayList<>();
