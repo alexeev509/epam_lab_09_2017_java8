@@ -4,6 +4,8 @@ import lambda.part1.example.Lambdas03;
 import org.junit.Test;
 
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -64,11 +66,14 @@ public class Lambdas03Exercise {
     private final String delimeter = "-";
 
     private String stringSumWithDelimeter(String s, int i) {
-        final StringJoiner sj = new StringJoiner(delimeter);
+      //  final StringJoiner sj = new StringJoiner(delimeter);
+        Stream.Builder<String> stream = Stream.builder();
         for (int j = 0; j < i; j++) {
-            sj.add(s);
+           stream.add(s);
+           if(j!=i-1)
+               stream.add(delimeter);
         }
-        return sj.toString();
+        return stream.build().collect(Collectors.joining());
     }
 
     @Test

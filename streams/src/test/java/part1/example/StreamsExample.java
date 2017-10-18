@@ -216,11 +216,13 @@ public class StreamsExample {
     }
 
     private Map<String, Person> getCoolestByPosition(List<Employee> employees) {
+       // System.out.println(employees);
         final Stream<PersonPositionDuration> personPositionDurationStream = employees.stream()
                 .flatMap(
                         e -> e.getJobHistory()
                                 .stream()
                                 .map(j -> new PersonPositionDuration(e.getPerson(), j.getPosition(), j.getDuration())));
+        personPositionDurationStream.forEach(e-> System.out.println(e.getPerson()+" "+e.getPosition()+" "+e.getDuration()));
 //        final Map<String, PersonPositionDuration> collect = personPositionDurationStream
 //                .collect(toMap(
 //                        PersonPositionDuration::getPosition,

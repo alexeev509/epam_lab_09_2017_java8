@@ -4,11 +4,15 @@ import data.Employee;
 import data.JobHistoryEntry;
 import data.Person;
 import org.junit.Test;
+import part1.example.StreamsExample;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
 import static org.junit.Assert.assertEquals;
-
+import static java.util.stream.Collectors.*;
 /**
  * @see <a href="https://youtu.be/kxgo7Y4cdA8">Через тернии к лямбдам, часть 1</a>
  * @see <a href="https://youtu.be/JRBWBJ6S4aU">Через тернии к лямбдам, часть 2</a>
@@ -68,7 +72,15 @@ public class StreamsExercise2 {
     @Test
     public void employersStuffList() {
         List<Employee> employees = getEmployees();
-        Map<String, Set<Person>> result = null; // TODO
+
+        //(oldValue, newValue) -> oldValue - чтобы не было двух одинаковых людей(ключей)
+        Map<String, Set<Person>> result=employees.stream()
+                .flatMap(p->p.getJobHistory().stream()
+                        .collect(Collectors.toMap(JobHistoryEntry::getEmployer,x->p.getPerson(),(oldValue, newValue) -> oldValue)).entrySet().stream())
+                        .collect(Collectors.groupingBy(Map.Entry::getKey,
+                                Collectors.mapping(Map.Entry::getValue, Collectors.toSet())));
+        //System.out.println(jobHistory);
+                 // TODO
 
         Map<String, Set<Person>> expected = new HashMap<>();
         expected.put("epam", new HashSet<>(Arrays.asList(
@@ -149,7 +161,12 @@ public class StreamsExercise2 {
      */
     @Test
     public void indexByFirstEmployer() {
-        Map<String, Set<Person>> result = null; // TODO
+        Map<String, Set<Person>> result =getEmployees().stream()
+                .flatMap(p->p.getJobHistory().stream().limit(1)
+                        .collect(Collectors.toMap(JobHistoryEntry::getEmployer,x->p.getPerson(),(oldValue, newValue) -> oldValue)).entrySet().stream())
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toSet())));
+        // TODO
 
 
         Map<String, Set<Person>> expected = new HashMap<>();
@@ -178,13 +195,22 @@ public class StreamsExercise2 {
      */
     @Test
     public void greatestExperiencePerEmployer() {
-        Map<String, Person> result = null;// TODO
+       // Map<String, Person> result =null;
+        Stream<PersonEmployerDuration> personEmployerDurationStream=getEmployees().stream()
+                .flatMap(e->e.getJobHistory()
+                             .stream()
+                                 .map(j->new PersonEmployerDuration(e.getPerson(),j.getEmployer(),j.getDuration())));
+        //personEmployerDurationStream.forEach(e-> System.out.println(e.getPerson()+" "+e.getEmploer()+" "+e.getDuration()));
+        Map<String, Person> result =  personEmployerDurationStream.collect(groupingBy(
+                        PersonEmployerDuration::getEmploer,
+                        collectingAndThen(
+                                maxBy(comparing(PersonEmployerDuration::getDuration)), p -> p.get().getPerson())));
 
-        Map<String, Set<Person>> expected = new HashMap<>();
-        expected.put("epam", Collections.singleton(new Person("John", "White", 28)));
-        expected.put("google", Collections.singleton(new Person("John", "Galt", 29)));
-        expected.put("yandex", Collections.singleton(new Person("John", "Doe", 30)));
-        expected.put("abc", Collections.singleton(new Person("John", "Doe", 30)));
+        Map<String, Person> expected = new HashMap<>();
+        expected.put("epam", new Person("John", "White", 28));
+        expected.put("google", new Person("John", "Galt", 29));
+        expected.put("yandex", new Person("John", "Doe", 30));
+        expected.put("abc", new Person("John", "Doe", 30));
         assertEquals(expected, result);
     }
 
@@ -253,6 +279,32 @@ public class StreamsExercise2 {
                             new JobHistoryEntry(6, "QA", "epam")
                     ))
         );
+    }
+
+
+
+    private static class PersonEmployerDuration {
+        private final Person person;
+        private final String employer;
+        private final int duration;
+
+        public PersonEmployerDuration(Person person, String employer, int duration) {
+            this.person = person;
+            this.employer = employer;
+            this.duration = duration;
+        }
+
+        public Person getPerson() {
+            return person;
+        }
+
+        public String getEmploer() {
+            return employer;
+        }
+
+        public int getDuration() {
+            return duration;
+        }
     }
 
 }
