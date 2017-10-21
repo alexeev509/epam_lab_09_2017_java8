@@ -16,13 +16,13 @@ import java.util.stream.StreamSupport;
 public class ArrayIntBenchmark {
 
     @Param({"10000000"})
-    public int length;
+    public int length=10000000;
 
     public int[] array;
 
     @Setup
     public void setup() {
-        array = ThreadLocalRandom.current().ints(length).toArray();
+        array = new int[]{1,2,3,7,8,9};
     }
 
 
@@ -54,5 +54,12 @@ public class ArrayIntBenchmark {
         return StreamSupport.intStream(new IntArraySpliterator(array), true)
                             .asLongStream()
                             .sum();
+    }
+
+    public static void main(String[] args) {
+        ArrayIntBenchmark arrayIntBenchmark=new ArrayIntBenchmark();
+        arrayIntBenchmark.setup();
+        long l=arrayIntBenchmark.arrayIntSpliteratorParallel();
+        System.out.println(l);
     }
 }

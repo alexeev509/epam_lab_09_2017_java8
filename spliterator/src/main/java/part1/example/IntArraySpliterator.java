@@ -3,6 +3,7 @@ package part1.example;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.IntConsumer;
+import java.util.stream.StreamSupport;
 
 public class IntArraySpliterator extends Spliterators.AbstractIntSpliterator {
 
@@ -28,6 +29,7 @@ public class IntArraySpliterator extends Spliterators.AbstractIntSpliterator {
 
     @Override
     public boolean tryAdvance(IntConsumer action) {
+
         if (startInclusive < endExclusive) {
             int value = array[startInclusive];
             startInclusive += 1;
@@ -57,9 +59,12 @@ public class IntArraySpliterator extends Spliterators.AbstractIntSpliterator {
 
     @Override
     public void forEachRemaining(IntConsumer action) {
+
         for (int i = startInclusive; i < endExclusive; i++) {
             action.accept(array[i]);
         }
         startInclusive = endExclusive;
     }
+
+
 }

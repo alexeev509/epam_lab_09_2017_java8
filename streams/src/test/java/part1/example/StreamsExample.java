@@ -232,7 +232,8 @@ public class StreamsExample {
                 .flatMap(
                         e -> e.getJobHistory()
                                 .stream()
-                                .map(j -> new PersonPositionDuration(e.getPerson(), j.getPosition(), j.getDuration())));
+                                .map(j -> new PersonPositionDuration(e.getPerson(), j.getPosition(),
+                                        j.getDuration())));
 //        final Map<String, PersonPositionDuration> collect = personPositionDurationStream
 //                .collect(toMap(
 //                        PersonPositionDuration::getPosition,
@@ -241,7 +242,8 @@ public class StreamsExample {
         return personPositionDurationStream
                 .collect(groupingBy(
                         PersonPositionDuration::getPosition,
-                        collectingAndThen(maxBy(comparing(PersonPositionDuration::getDuration)), p -> p.isPresent() ? p.get().getPerson() : null)));
+                        collectingAndThen(maxBy(comparing(PersonPositionDuration::getDuration)),
+                                p -> p.isPresent() ? p.get().getPerson() : null)));
     }
 
     @Test

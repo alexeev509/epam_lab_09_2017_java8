@@ -4,8 +4,14 @@ import data.Employee;
 import data.JobHistoryEntry;
 import data.Person;
 import org.junit.Test;
+import part1.example.StreamsExample;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.*;
 
 public class CollectorsExercise1 {
 
@@ -33,11 +39,39 @@ public class CollectorsExercise1 {
         }
     }
 
+    private static class PersonEmploer{
+        private final String person;
+        private final String employer;
+
+        public PersonEmploer(Person person, String employer) {
+            this.person = person.getFirstName()+" "+person.getLastName()+" "+person.getAge();
+            this.employer = employer;
+        }
+
+        public String getPerson() {
+            return person;
+        }
+
+        public String getEmployer() {
+            return employer;
+        }
+    }
+
 
     // "epam" -> "Alex Ivanov 23, Semen Popugaev 25, Ivan Ivanov 33"
     @Test
     public void getEmployeesByEmployer() {
-        Map<String, String> result = null;
+        Stream<PersonEmploer> personEmploerStream=getEmployees().stream()
+                .flatMap(e->e.getJobHistory().stream()
+                .map(j->new PersonEmploer(e.getPerson(),j.getEmployer())));
+
+       // personEmploerStream.forEach(e-> System.out.println(e.getEmployer()+" "+e.getPerson()));
+
+        Map<String, String> result =personEmploerStream.collect(groupingBy(PersonEmploer::getEmployer,
+                mapping(PersonEmploer::getPerson,joining(","))));
+        for (Map.Entry entry: result.entrySet()) {
+            System.out.println(entry.getKey()+"->"+entry.getValue());
+        }
 
     }
 
@@ -49,16 +83,31 @@ public class CollectorsExercise1 {
     }
 
     private Map<String, Person> getCoolestByPosition(List<Employee> employees) {
+
         // First option
         // Collectors.maxBy
         // Collectors.collectingAndThen
         // Collectors.groupingBy
+        Map<String,Person> coolestByPosition=employees.stream()
+                .flatMap(e->e.getJobHistory().stream()
+                .map(p->new PersonPositionDuration(e.getPerson(),p.getPosition(),p.getDuration())))
+                .collect(groupingBy(PersonPositionDuration::getPosition,
+                        collectingAndThen(maxBy(comparing(PersonPositionDuration::getDuration)),p -> p.isPresent() ? p.get().getPerson() : null)));
+
+
+
+           /*   coolestByPosition=employees.stream()
+                .flatMap(e->e.getJobHistory().stream()
+                 .map(p->new PersonPositionDuration(e.getPerson(),p.getPosition(),p.getDuration())))
+                .collect(toMap(PersonPositionDuration::getPosition,PersonPositionDuration::getPerson))
+              .entrySet().stream();*/
+        System.out.println(coolestByPosition);
 
         // Second option
         // Collectors.toMap
         // iterate twice: stream...collect(...).stream()...
         // TODO
-        throw new UnsupportedOperationException();
+        return coolestByPosition;
     }
 
     private List<Employee> getEmployees() {
