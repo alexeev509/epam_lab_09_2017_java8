@@ -11,6 +11,8 @@
         <module>optional</module>
         <module>streams</module>
         <module>spliterator</module>
+        <module>future</module>
+        <module>time</module>
     </modules>
 
     <dependencies>
