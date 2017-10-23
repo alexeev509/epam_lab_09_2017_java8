@@ -3,6 +3,8 @@ package part2.exercise;
 import data.Employee;
 import data.JobHistoryEntry;
 import data.Person;
+import javafx.util.Pair;
+import jdk.nashorn.internal.objects.annotations.Function;
 import org.junit.Test;
 import part1.example.StreamsExample;
 
@@ -96,11 +98,30 @@ public class CollectorsExercise1 {
 
 
 
-           /*   coolestByPosition=employees.stream()
-                .flatMap(e->e.getJobHistory().stream()
-                 .map(p->new PersonPositionDuration(e.getPerson(),p.getPosition(),p.getDuration())))
-                .collect(toMap(PersonPositionDuration::getPosition,PersonPositionDuration::getPerson))
-              .entrySet().stream();*/
+        Map<Person,JobHistoryEntry> map=new TreeMap<>();
+           //  employees.stream()
+                   //  .flatMap()
+                    // .collect(toMap(Employee::getPerson,Employee::getJobHistory)).entrySet().stream()
+                    /* .forEach(e->{
+                         e.getValue().forEach(n->map.put(e.getKey(),n));
+                         System.out.println(e.getValue().size());
+                     });*/
+        Comparator<JobHistoryEntry> comparator = (e1,e2) -> Integer.compare(e1.getDuration(),e2.getDuration());
+        Map<String,Person> result = employees.stream()
+                .flatMap(e -> e.getJobHistory().stream().map(h -> new Pair<>(e,h)))
+                .collect(Collectors.groupingBy(p -> p.getValue().getPosition(),Collectors.collectingAndThen(
+                        Collectors.maxBy((p1,p2) -> comparator.compare(p1.getValue(),p2.getValue())),p -> p.isPresent()? p.get().getKey().getPerson() : null)));
+
+        System.out.println("result:");
+        System.out.println(result);
+        for (Map.Entry entry:map.entrySet()) {
+            System.out.println(entry.getKey().toString()+" "+entry.getValue().toString());
+        }
+        System.out.println();
+
+              //        .
+                        //.max()
+
         System.out.println(coolestByPosition);
 
         // Second option

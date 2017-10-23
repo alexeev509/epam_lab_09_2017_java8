@@ -1,7 +1,8 @@
 package part1.exercise;
 
-import part1.example.IntArraySpliterator;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.IntConsumer;
@@ -10,47 +11,62 @@ import java.util.stream.StreamSupport;
 public class RectangleSpliterator extends Spliterators.AbstractIntSpliterator {
 
     private final int[][] array;
+    private final int endExclusive;
+    private int startInclusive;
 
-    public RectangleSpliterator(int[][] array) {
-      //  super(checkArrayAndCalcEstimatedSize(array), 0);       // TODO заменить
-        //Size?? this is right??
-       super(array.length*array[0].length, Spliterator.IMMUTABLE
+    public RectangleSpliterator(int[][] array, int startInclusive, int endExclusive) {
+          // TODO
+       super(endExclusive-startInclusive, Spliterator.IMMUTABLE
                          | Spliterator.ORDERED
                           | Spliterator.SIZED
                          | Spliterator.SUBSIZED
                           | Spliterator.NONNULL);
         this.array = array;
+        this.startInclusive=startInclusive;
+        this.endExclusive=endExclusive;
+    }
+    public RectangleSpliterator(int[][] array) {
+        this(array,0, (int) checkArrayAndCalcEstimatedSize(array));
     }
 
     private static long checkArrayAndCalcEstimatedSize(int[][] array) {
-        // TODO
+        if(Objects.isNull(array))
+            throw new RuntimeException("mass equals null");
 
         return array.length * array[0].length;
     }
 
     @Override
     public OfInt trySplit() {
-        // TODO
-        throw new UnsupportedOperationException();
+        int length = endExclusive - startInclusive;
+        if (length < 2) {
+            return null;
+        }
+
+        int mid = startInclusive + length / 2;
+        RectangleSpliterator result = new RectangleSpliterator(array, startInclusive, mid);
+        startInclusive = mid;
+        return result;
     }
 
     @Override
     public long estimateSize() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return endExclusive-startInclusive;
     }
 
     @Override
     public boolean tryAdvance(IntConsumer action) {
-        for(int i=0; i<array.length;i++)
-            for (int j=0;j<array[0].length;j++)
-                action.accept(array[i][j]);
-        //throw new UnsupportedOperationException();
-        return true;
+        if (startInclusive < endExclusive) {
+            int value = array[(startInclusive / array[0].length)][(startInclusive % array[0].length)];
+            ++startInclusive;
+            action.accept(value);
+            return true;
+        }
+        return false;
     }
 
-    public static void main(String[] args) {
-        int[][]array=new int[][]{{1,2,3},{4,5,6}};
+    public static void main(String[] args)  {
+        int[][]array=new int[][]{{1,2,3},{4,5,6},{7,8,9}};
         long l= StreamSupport.intStream(new RectangleSpliterator(array), true)
                 .asLongStream()
                 .sum();

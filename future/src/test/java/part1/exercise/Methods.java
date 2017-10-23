@@ -103,7 +103,7 @@ public class Methods {
 
     @Test
     public void foreachMapFlatMap() {
-        CompletableFuture<Integer> future = null;
+        CompletableFuture<Integer> future = new CompletableFuture<>();
         CompletableFuture<Integer> future1 = null;
         CompletableFuture<String> future2 = null;
 
@@ -125,9 +125,9 @@ public class Methods {
 
     @Test
     public void allAnyOf() {
-        CompletableFuture<Integer> future = null;
-        CompletableFuture<Integer> future1 = null;
-        CompletableFuture<String> future2 = null;
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        CompletableFuture<Integer> future1 = new CompletableFuture<>();
+        CompletableFuture<String> future2 = new CompletableFuture<>();
 
         // All of
         CompletableFuture<Void> allOf = CompletableFuture.allOf(future, future1, future2);
