@@ -84,6 +84,7 @@ public class CollectorsExercise1 {
         coolestByPosition.forEach((position, person) -> System.out.println(position + " -> " + person));
     }
 
+    
     private Map<String, Person> getCoolestByPosition(List<Employee> employees) {
 
         // First option
@@ -96,31 +97,6 @@ public class CollectorsExercise1 {
                 .collect(groupingBy(PersonPositionDuration::getPosition,
                         collectingAndThen(maxBy(comparing(PersonPositionDuration::getDuration)),p -> p.isPresent() ? p.get().getPerson() : null)));
 
-
-
-        Map<Person,JobHistoryEntry> map=new TreeMap<>();
-           //  employees.stream()
-                   //  .flatMap()
-                    // .collect(toMap(Employee::getPerson,Employee::getJobHistory)).entrySet().stream()
-                    /* .forEach(e->{
-                         e.getValue().forEach(n->map.put(e.getKey(),n));
-                         System.out.println(e.getValue().size());
-                     });*/
-        Comparator<JobHistoryEntry> comparator = (e1,e2) -> Integer.compare(e1.getDuration(),e2.getDuration());
-        Map<String,Person> result = employees.stream()
-                .flatMap(e -> e.getJobHistory().stream().map(h -> new Pair<>(e,h)))
-                .collect(Collectors.groupingBy(p -> p.getValue().getPosition(),Collectors.collectingAndThen(
-                        Collectors.maxBy((p1,p2) -> comparator.compare(p1.getValue(),p2.getValue())),p -> p.isPresent()? p.get().getKey().getPerson() : null)));
-
-        System.out.println("result:");
-        System.out.println(result);
-        for (Map.Entry entry:map.entrySet()) {
-            System.out.println(entry.getKey().toString()+" "+entry.getValue().toString());
-        }
-        System.out.println();
-
-              //        .
-                        //.max()
 
         System.out.println(coolestByPosition);
 
